@@ -8,17 +8,17 @@ export class UserService {
         return this.users
     }
 
-    getUser(email: string): User {
+    async getUser(email: string): Promise<User> {
         let userData = this.users.filter(j => j.email == email)
         if (userData && userData.length > 0) {
-            return userData[0]
+            return Promise.resolve(userData[0])
         }
         throw new NotFoundException('User not found')
     }
 
-    addUser(u: User): User {
+    addUser(u: User): Promise<User> {
         this.users.push(u)
-        return u
+        return Promise.resolve(u)
     }
 
     deleteUser(e: string): User[] {
