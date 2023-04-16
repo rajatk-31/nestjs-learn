@@ -14,6 +14,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
             .json({
                 statusCode: status,
                 timestamp: new Date().toISOString(),
+                // anything you can add in wrr response 
                 path: request.url,
             });
     }

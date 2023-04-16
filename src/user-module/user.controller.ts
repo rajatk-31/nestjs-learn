@@ -1,6 +1,6 @@
 import { BadRequestException, Body, Controller, Delete, Get, Param, Post, UseFilters, UsePipes, ValidationPipe } from '@nestjs/common';
 import { UserDto, userParamsDto } from './dto/user.dto';
-import { HttpExceptionFilter } from './filter';
+import { HttpExceptionFilter } from '../core/filter';
 import { User } from './interface/user';
 import { UserService } from './user.service';
 
