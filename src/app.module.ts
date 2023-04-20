@@ -15,12 +15,12 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { CustomerModule } from './customer/customer.module';
 import { DatabaseModule } from './database/database.module';
-import { TaskModule } from './task-module/task.module';
+// import { TaskModule } from './task-module/task.module';
 // import { DatabaseModule } from './database/database.module';
 // import { CustomerModule } from './customer/customer.module';
 
 @Module({
-  imports: [TaskModule, CustomerModule, DatabaseModule],
+  imports: [CustomerModule, DatabaseModule],
   controllers: [AppController],
   providers: [AppService],
 })
