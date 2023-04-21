@@ -1,27 +1,32 @@
-// import { Module } from '@nestjs/common';
-// import { AppController } from './app.controller';
-// import { AppService } from './app.service';
-// import { UserModule } from './user-module/user.module';
-
-// @Module({
-//   imports: [UserModule],
-//   controllers: [AppController],
-//   providers: [AppService],
-// })
-// export class AppModule { }
-
-import { Module } from '@nestjs/common';
+import { Module, NestModule, MiddlewareConsumer } from '@nestjs/common';
 import { AppController } from './app.controller';
-import { AppService } from './app.service';
-import { CustomerModule } from './customer/customer.module';
 import { DatabaseModule } from './database/database.module';
-// import { TaskModule } from './task-module/task.module';
-// import { DatabaseModule } from './database/database.module';
-// import { CustomerModule } from './customer/customer.module';
+import UserEntity from './entities/User';
+import PostEntity from './entities/Post';
+import CommnentEntity from './entities/Comment';
+
+import TagEntity from './entities/Tag';
+import CategoryEntity from './entities/Category';
+
+import { AppService } from './app.service';
+import { SharedModule } from './shared/shared.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
-  imports: [CustomerModule, DatabaseModule],
+  imports: [
+    DatabaseModule.forRoot({ entities: [
+      PostEntity,
+      UserEntity,
+      CommnentEntity,
+      CategoryEntity,
+      TagEntity
+    ]}),
+    AuthModule,
+    SharedModule
+    ],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule { }
+export class AppModule  {
+
+}
