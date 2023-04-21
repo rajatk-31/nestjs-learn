@@ -1,17 +1,20 @@
-import { Controller, Get, Post } from '@nestjs/common';
+import { Controller, Get, UseFilters, UseGuards, Body, Post } from '@nestjs/common';
 import { AppService } from './app.service';
+import { ApiProperty } from '@nestjs/swagger';
+import { AuthGuard } from '@nestjs/passport';
+@Controller()
 
-@Controller('hello')
 export class AppController {
-  constructor(private readonly appService: AppService) { }
+  constructor(private readonly appService: AppService) {}
 
   @Get()
-  getHelloGet(): string {
+  getHello(): string {
     return this.appService.getHello();
   }
 
-  @Post()
-  getHelloPost(): string {
+  @Get('/ping')
+  @UseGuards(AuthGuard('jwt'))
+  getHelloPing(): string {
     return this.appService.getHello();
   }
 }

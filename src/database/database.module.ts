@@ -1,35 +1,67 @@
-// import { Module } from '@nestjs/common';
-// import { MongooseModule } from '@nestjs/mongoose';
+import { Module, DynamicModule, NotImplementedException } from '@nestjs/common';
+import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
+import { ConfigDBData } from '../config/config.interface';
+import { ConfigModule } from '../config/config.module';
+import { ConfigService } from '../config/config.service';
+import { DbConfig } from './db.interface';
+import { DbConfigError, DbError } from './db.error';
 
-// @Module({
-//     imports: [
-//         MongooseModule.forRoot('mongodb://localhost:27017/task', { useNewUrlParser: true })
-//     ],
-//     controllers: [],
-//     providers: [],
-// })
-// export class DatabaseModule { }
+@Module({})
 
+export class DatabaseModule {
 
-// For SQL
+  public static getConnectionOptions(config: ConfigService, dbconfig: DbConfig): TypeOrmModuleOptions {
+    const dbdata = config.get().db;
+    console.log(config);
+    let connectionOptions: TypeOrmModuleOptions;
 
-import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { Customer } from './entity/customer.entity';
-import { User } from './entity/user.entity';
-
-@Module({
-    imports: [
-        TypeOrmModule.forRoot({
-            type: 'mysql',
-            host: 'mysql',
-            port: 3306,
-            username: 'root',
-            password: 'root',
-            database: 'test',
-            entities: [User, Customer],
-            synchronize: true,
+    if (!dbdata) {
+      throw new DbConfigError('Database config is missing');
+    }
+    switch (dbdata.type) {
+        case  'mysql':
+          connectionOptions = this.getConnectionOptionsMysql(dbdata);
+          break;
+          default:
+            throw new NotImplementedException(`Database type '${dbdata.type}' not supported`);  
+      }
+    return {
+        ...connectionOptions,
+        entities: dbconfig.entities,
+        logging: true,
+      }; 
+  }
+  private static getConnectionOptionsSqlite(dbdata: any): TypeOrmModuleOptions {
+    throw new NotImplementedException(`Database type '${dbdata.type}' not supported`);
+  }
+  private static getConnectionOptionsMysql(dbdata: ConfigDBData): TypeOrmModuleOptions {
+    return {
+      type: 'mysql',
+      host: dbdata.host,
+      port: dbdata.port,
+      username: dbdata.user,
+      password: dbdata.pass,
+      database: dbdata.name,
+      charset: dbdata.charset,
+      extra: {
+        collate: dbdata.collate,
+        dialect: dbdata.dialect,
+      },
+    };
+  }
+  public static forRoot(dbconfig: DbConfig): DynamicModule {
+    return {
+      module: DatabaseModule,
+      imports: [
+        TypeOrmModule.forRootAsync({
+          imports: [ConfigModule],
+          useFactory: (configService: ConfigService) => DatabaseModule.getConnectionOptions(configService, dbconfig),
+          inject: [ConfigService],
         }),
-    ],
-})
-export class DatabaseModule { }
+      ],
+      controllers: [],
+      providers: [],
+      exports: [],
+    };
+  }
+}
